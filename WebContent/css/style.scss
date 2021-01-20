@@ -1,0 +1,77 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: rgb(65, 201, 255);
+}
+
+.loader {
+  position: relative;
+  width: 120px;
+  height: 120px;
+
+  span {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform: rotate(calc(18deg * var(--i)));
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: white;
+      transform: scale(0);
+      animation: rotation 3s linear infinite;
+      animation-delay: calc(0.16s * var(--i));
+    }
+  }
+
+  .rocket {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    animation: rocketAnimation 3s linear infinite;
+
+    &::before {
+      content: "\f072";
+      font-family: "fontAwesome";
+      position: absolute;
+      color: white;
+      left: 85px;
+      top: 85px;
+      font-size: 60px;
+      transform: rotate(180deg);
+    }
+  }
+}
+
+@keyframes rotation {
+  0% {
+    transform: scale(0);
+  }
+  20% {
+    transform: scale(1.2);
+  }
+  80%,
+  100% {
+    transform: scale(0);
+  }
+}
+
+@keyframes rocketAnimation {
+  0% {
+    transform: rotate(-180deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}

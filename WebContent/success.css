@@ -1,0 +1,17 @@
+body {
+    background-image: url(kayak4.jpg);
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;;
+    background-size: 100% 100%;
+    font-family: Lucida Handwriting;
+    margin-top: 10%;
+}
+
+.backbtn a{
+	font-size: 20px;
+}
+
+.backbtn a:hover{
+	text-decoration: none;
+}

@@ -1,0 +1,77 @@
+.main {
+	margin-left: 40%;
+	margin-top: 15%;
+}
+.rating-star {
+    direction: rtl;
+    font-size: 40px;
+    unicode-bidi: bidi-override;
+    display: inline-block;
+}
+.rating-star input {
+    opacity: 0;
+    position: relative;
+    left: -30px;
+    z-index: 2;
+    cursor: pointer;
+}
+.rating-star span.star:before {
+    color: #777777;
+}
+.rating-star span.star {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    position: relative;
+    z-index: 1;
+}
+.rating-star span {
+    margin-left: -30px;
+}
+.rating-star span.star:before {
+    color: #777777;
+    content:"\f006";
+}
+.rating-star input:hover + span.star:before, .rating-star input:hover + span.star ~ span.star:before, .rating-star input:checked + span.star:before, .rating-star input:checked + span.star ~ span.star:before {
+    color: #ffd100;
+    content:"\f005";
+}
+ 
+.selected-rating{
+    color: #ffd100;
+    font-weight: bold;
+    font-size: 42px;
+}
+
+.textarea{
+  height: 100px;
+  width: 100%;
+  overflow: hidden;
+  display: block;
+  margin-left: -40%;
+}
+.textarea textarea{
+  height: 100%;
+  width: 100%;
+  outline: none;
+  color: #eee;
+  border: 1px solid #333;
+  background: #222;
+  padding: 10px;
+  font-size: 17px;
+  resize: none;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.textarea textarea:focus{
+  border-color: #444;
+}
+.sub_btn {
+	font-size: 17px;   
+    background-color: black;
+    font-family: Lucida Handwriting;
+    color: LightYellow;
+	margin-left: 4%;
+}

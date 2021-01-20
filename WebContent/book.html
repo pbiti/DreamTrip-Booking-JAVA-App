@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="bookstyle.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+   var malakia1;
+   var malakia2;
+   var city_hotel_id;
+
+   /*function hotel_photos(hotel_id){
+      var url = "https://hotels4.p.rapidapi.com/properties/get-hotel-photos?id=".concat(hotel_id);
+      
+      
+      fetch(url, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "b224f16294mshd9aab121e05708bp1ce92bjsna50a03d64be2",
+        "x-rapidapi-host": "hotels4.p.rapidapi.com"
+      }
+    })
+     .then(response => {
+          return response.json();
+      })
+    .then(function(obj){
+      console.log(obj);
+      source = JSON.stringify(obj.hotelImages[0].baseUrl);
+      document.getElementById("form").innerHTML += source;
+      var myImage = new Image(100, 200);
+      myImage.src = "https://exp.cdn-hotels.com/hotels/36000000/35220000/35210900/35210833/a3c44272_{100}.jpg";
+      document.body.appendChild(myImage);
+    })
+   }*/
+
+   function hotel_info(hotel_id, depart, ret){
+    var url = "https://hotels4.p.rapidapi.com/properties/get-details?id=".concat(hotel_id,"&locale=en_US&currency=EUR&checkOut=",ret,"&adults1=1&checkIn=",depart);
+    fetch(url, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "b224f16294mshd9aab121e05708bp1ce92bjsna50a03d64be2",
+        "x-rapidapi-host": "hotels4.p.rapidapi.com"
+  }
+  })
+  .then(response => {
+          return response.json();
+      })
+    .then(function(obj){
+      console.log(obj);
+      hotel_photos(hotel_id);
+    })
+   }
+
+   function find_hotel(city_id,adults,kids,sortby, depart, ret){
+     
+      var url = "https://hotels4.p.rapidapi.com/properties/list?destinationId=".concat(city_id,"&pageNumber=1&checkIn=",depart,"&checkOut="
+        ,ret,"&pageSize=25&adults1=",parseInt(adults)+parseInt(kids),"&currency=EUR&locale=en_US&sortOrder=",sortby);
+
+      fetch(url, {
+    "method": "GET",
+    "headers": {
+        "x-rapidapi-key": "b224f16294mshd9aab121e05708bp1ce92bjsna50a03d64be2",
+        "x-rapidapi-host": "hotels4.p.rapidapi.com"
+    }
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(function(obj){
+      console.log(obj);
+      var hotelid = JSON.stringify(obj.data.body.searchResults.results[0].id);
+      hotel_info(hotelid, depart, ret);
+    })
+      
+   }
+
+   function hotel_id(dest, depart, ret, adults, kids, sortby){
+    var dest_full = dest;
+    for(var i=0; i<dest_full.length;i++) {
+        if (dest_full[i] === " ") dest_full[i] = "%20";
+    }
+
+    var static_url = "https://hotels4.p.rapidapi.com/locations/search?query=";
+    static_url = static_url.concat(dest_full,"&locale=en_US");
+
+    fetch(static_url, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "f0fd86c811msh24d880730614e8dp1e1bb2jsn1a14098cf6e4",
+        "x-rapidapi-host": "hotels4.p.rapidapi.com"
+      }
+    })
+    .then(function(response){
+      return response.json();
+    
+    })
+    .then(function(data){
+      console.log(data);
+      city_hotel_id = JSON.stringify(data.suggestions[0].entities[0].destinationId);
+      city_hotel_id = city_hotel_id.substring(1, city_hotel_id.length-1);
+      find_hotel(city_hotel_id,adults,kids,sortby,depart,ret);
+    }) 
+   }
+
+  function flight_api(origin, dest, dep, ret){
+    var from = origin.substring(1, origin.length-1);
+    var des = dest.substring(1, dest.length-1);
+    
+     from = "/".concat(from);
+     des = "/".concat(des);
+
+    //var depart = "/".concat(document.myForm.depart.value);
+    //var ret = "/".concat(document.myForm.ret.value);
+    var skyapi = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browseroutes/v1.0/US/EUR/en-US";
+    var url = skyapi.concat(from,des,dep,ret);
+    
+    
+    
+    fetch(url, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "f0fd86c811msh24d880730614e8dp1e1bb2jsn1a14098cf6e4",
+        "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com"
+      }
+    })
+    .then(function(response){
+      return response.json();
+    
+    })
+    .then(function(data){
+      console.log(data);
+      //document.getElementById("form").innerHTML += "<br/>" + "<li/>" + JSON.stringify(data.Quotes[0].OutboundLeg.DepartureDate); 
+      //document.getElementById("form").innerHTML += "<br/>" + JSON.stringify(data.Quotes[0].MinPrice);
+      document.getElementById("form").innerHTML += "<h1 class='bye'>Cheapest Flight</h1>" + "<h3/>" + JSON.stringify(data.Quotes[0].OutboundLeg.DepartureDate) + "<br/>"
+          + "<h3/>" + JSON.stringify(data.Quotes[0].MinPrice) +"EUR";
+    }) 
+  }
+
+  function validate(){
+
+    var id_url = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=";
+    var origin = document.myForm.from.value;
+    var destination = document.myForm.des.value;
+    var final_url_origin = id_url.concat(origin);
+    var final_url_des = id_url.concat(destination);
+    var d = document.myForm.depart.value;
+    var r = document.myForm.ret.value;
+    var depart = "/".concat(document.myForm.depart.value);
+    var ret = "/".concat(document.myForm.ret.value);
+    var adults = document.myForm.adults.value;
+    var kids = document.myForm.kids.value;
+    var sortby = document.myForm.sortby.value;
+    
+    document.getElementById("form").innerHTML = "";
+
+    fetch(final_url_origin, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "b224f16294mshd9aab121e05708bp1ce92bjsna50a03d64be2",
+        "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com"
+      }
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(function(obj){
+      console.log(obj);
+      malakia1 = JSON.stringify(obj.Places[0].PlaceId);
+      
+      fetch(final_url_des, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": "b224f16294mshd9aab121e05708bp1ce92bjsna50a03d64be2",
+        "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com"
+      }
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(function(ob){
+      console.log(ob);
+      malakia2 = JSON.stringify(ob.Places[0].PlaceId);
+      //document.getElementById("form").innerHTML += malakia1;
+      //document.getElementById("form").innerHTML += malakia2;  
+      flight_api(malakia1, malakia2, depart, ret);
+      hotel_id(destination, d, r, adults, kids, sortby);
+
+    })
+
+    })
+
+  }
+</script>
+</head>
+
+<body>
+
+<div class="navbar">
+
+  <a href="#default" class="logo"><i class="fa fa-globe" style="color: LightYellow" size = "8px"></i> DREAM TRIP</a>
+  
+  <div class="icons">
+    <a class="fa fa-phone" target="_blank" title="(+30)242100000" style="color: black"></a>
+    <a class="fa fa-envelope" target="_blank" title="dreamtrip@gmail.com" style="color: black"></a>
+    <a target="_blank" href="https://www.facebook.com/"><i class="fa fa-facebook" style="color: black"></i></a>
+    <a target="_blank" href="https://www.facebook.com/"><i class="fa fa-instagram" style="color: black"></i></a>
+    <a target="_blank" href="https://www.twitter.com/"><i class="fa fa-twitter" style="color: black"></i></a>
+    <a target="_blank" href="https://www.youtube.com/"><i class="fa fa-youtube" style="color: black"></i></a>
+  </div>
+
+
+  <div class="header-right-nav">
+  <a  href="login.html">HOME</a>
+  <a href="ourteam.html">OUR TEAM</a>
+  <div class="dropdown_des">
+    <button class="dropbtn_nav">DESTINATIONS 
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content-nav">
+         
+      <div class="row_des">
+        <div class="column_des">
+          <!--<h3><u>GREECE</u></h3>  -->
+            <a href="#">ITALY</a>
+            <a href="#">SCOTLAND</a>
+            <a href="#">RUSSIA</a>
+            <a href="#">EGYPT</a>
+        </div>
+        <div class="column_des">
+          <a href="Iceland.html">ICELAND</a>
+          <a href="#">NORWAY</a>
+          <a href="#">JAPAN</a>
+          <a href="#">POLAND</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a class="active">BOOK</a>
+  
+  
+  <div class="dropdown_des">
+    <button class="dropbtn_nav">MY PROFILE 
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content-nav">
+         
+          
+          <div class="column_profile" style="width: 100%">
+          <h2>Hello Kwlompilo</h2>
+          <br>
+          <h3>Your Trips</h3>
+          <h4>Travel Packages:</h4>
+          <br>
+          <p>From: Kwlos, To: Pipi, 7 Days April, 878$</p>
+        
+        </div>
+        </div>
+      </div>
+
+  
+  <a href ="main.html">LOGOUT</a>  
+  </div>
+</div>  
+
+
+<div id="form" class="forma">
+<form onsubmit="return validate();" name="myForm" action="" method="post">
+<div class="card shadow mb-5 bg-white rounded">
+    <!--Card-Body-->
+    <div class="card-body">
+       
+    
+        <center>
+        <p class="card-title text-center shadow mb-5 rounded">Travel Booking Form</p>
+       
+        <br><br>
+    
+             <div class="col-sm-6"> <input placeholder="From" type="text" id="from" class="form-control"> </div>
+             <br><br><br>
+
+            <div class="col-sm-6"> <!--<select class=form-control datepicker mb-4 id="select">
+                    <option value="" disabled="" selected="">To</option>
+                    <option value="1">METEORA</option>
+                    <option value="2">ARACHOVA</option>
+                    <option value="3">PELION</option>
+                    <option value="4">ZAGOROCHORIA</option>
+                    <option value="5">ICELAND</option>
+                    <option value="6">NORWAY</option>
+                    <option value="7">JAPAN</option>
+                    <option value="8">POLAND</option>-->
+                    <input placeholder="To" type="text" id="des" class="form-control">
+                <!--</select>--> 
+              </div>
+          <br><br><br>
+
+       <div class="hotel_info">
+          <div id="" class="space"> 
+              <label style="color: #b36b00" for="depart">Depart:</label>
+              <input class="datepicker" style="background-color: LightYellow" type="date" id="depart" name="depart" >
+
+              <label style="color: #b36b00" for="ret">Return:</label>
+              <input class="datepicker" style="background-color: LightYellow" type="date" id="ret" name="ret" >
+          </div>
+          <br><br>
+          <label for="quantity">Adults Number:</label>
+          <input style="background-color: LightYellow" type="number" id="adults" name="quantity" min="1" max="7">
+          
+          
+          <label  for="quantity">Children Number:</label>
+          <input style="background-color: LightYellow" type="number" id="kids" name="quantity" min="0" max="7">
+          <br><br><br>
+          
+        </div> 
+
+          <!--<div class="col-sm-6"> <select class="form-control datepicker mb-4" id="select">
+              <option value="" disabled="" selected="">Adults Number</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              </select> </div>-->
+          
+          <div class="col-sm-6"> <select class="form-control datepicker mb-4" id="sortby">
+              <option value="" disabled="" selected="">Sort Hotels By</option>
+              <option value="BEST_SELLER">Best Seller</option>
+              <option value="STAR_RATING_HIGHEST_FIRST">Star Rating(Highest First)</option>
+              <option value="GUEST_RATING">Guest Rating</option>
+              <option value="PRICE">Price(Lowest First)</option>
+              <option value="PRICE_HIGHEST_FIRST">Price(Highest First)</option>
+            </select> </div>
+            </center>
+
+          <br><br><br><br>
+        
+        <div class="enjoybtn"><!--<a  href="success.html" style="color: LightYellow" ><b>ENJOY</b></a></div>-->
+
+        <input class="enjoybtn" type="submit" id="submit" value="ENJOY">
+        <br><br><br><br>
+    </div>
+  </form>
+  </div>
+
+</body>
